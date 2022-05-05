@@ -1,37 +1,70 @@
+const express = require('express');
+morgan = require('morgan');
+const app = express();
 
-const http = require("http"),
-	fs = require("fs"),
-	url = require("url");
+let topMovies = [
+  {
+    title: 'Star Wars V The Empire Strikes Back',
+    year: '1980'
+  },
+  {
+    title: 'Top Gun',
+    year: '1986'
+  },
+  {
+    title: 'The Shawshank Redemption',
+    year: '1994'
+  },
+  {
+    title: 'The Usual Suspects',
+    year: '1995'
+  },
+  {
+    title: 'The Game',
+    year: '1997'
+  },{
+    title: 'Shutter Island',
+    year: '2010'
+  },
+  {
+    title: 'Green Mile',
+    year: '1999'
+  },
+  {
+    title: 'The Departed',
+    year: '2006'
+  },
+  {
+    title: 'Batman',
+    year: '1989'
+  },
+  {
+    title: 'Iron Man 3',
+    year: '2013'
+  }
+];
 
-http.createServer((request, response) => {
-	let addr = request.url,
-		q = url.parse(addr, true),
-		filePath = "";
+app.get('/', (req, res) => {
+  res.send('Welcome to my topMovies')
+});
 
-	fs.appendFile("log.txt", "URL: " + addr + "\nTimestamp: " + new Date() + "\n\n", (err) => {
-		if (err) {
-  			console.log(err);
-  		} else {
-  			console.log("Added to log.");
-  		}
-	});
+app.get('/documentation', (req, res) => {
+  res.sendFile('public/documentation.html', { root: __dirname });
+});
 
-	if (q.pathname.includes("documentation")) {
-		filePath = (__dirname + "/documentation.html");
-	} else {
-		filePath = "index.html";
-	}
+app.get('/movies', (req, res) => {
+  res.json(topMovies);
+});
 
-	fs.readFile(filePath, (err, data) => {
-		if (err) {
-  			throw err;
-  		}
+app.use(express.static('public'));
 
-		response.writeHead(200, {"Content-Type": "text/html"});
-		response.write(data);
-		response.end();
+app.use(morgan('common'));
 
-	});
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
-}).listen(8080);
-console.log("My first Node test server is running on Port 8080.");
+app.listen(8080, () =>{
+    console.log('Your app is listening on port 8080.');
+});
